@@ -5,10 +5,11 @@ const mongoose = require("mongoose");
 
 //will work with node@17 or above
 const mongoURI = "mongodb://0.0.0.0:27017";
+const database= "inotebook";
 
 const connectToMongo = () => {
   mongoose.set("strictQuery", false);
-  mongoose.connect(mongoURI, () => {
+  mongoose.connect(`${mongoURI}/${database}`, () => {
     console.log("Connected to Mongo successsfully");
   });
 };
