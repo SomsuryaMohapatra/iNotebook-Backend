@@ -4,7 +4,7 @@ const express = require("express");
 dbConnection();
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 //to send json content in request body , we have to use express.json()
 app.use(express.json());
