@@ -2,8 +2,11 @@ const express = require("express");
 const user = require("../models/User");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+
+const JWT_SECRET = "narut$o";
 
 //create a user using: POST "/api/auth/createuser" , does not require athentication
 router.post(
@@ -43,7 +46,14 @@ router.post(
             email: req.body.email,
             password: securePassword,
           });
-          res.json(User);
+          const data = {
+            User:{
+              id: User.id
+            }
+          }
+          const authToken= jwt.sign(data,JWT_SECRET);
+          res.json({data,authToken})
+          //res.json(User);
         }
       } catch (error) {
         console.error(error);
