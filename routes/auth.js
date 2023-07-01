@@ -1,3 +1,4 @@
+//required libs
 const express = require("express");
 const user = require("../models/User");
 const { body, validationResult } = require("express-validator");
@@ -5,11 +6,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fetchuser = require("../middleware/fetchuser");
 
+//express router for routing
 const router = express.Router();
 
 const JWT_SECRET = "narut$o";
 
-//Route 1: create a user using: POST "/api/auth/createuser" , does not require athentication
+//Route 1: create a user using: POST "/api/auth/createuser" , require athentication
 router.post(
   "/createuser",
   //validations
@@ -24,7 +26,7 @@ router.post(
   ],
   async (req, res) => {
     const result = validationResult(req);
-    //if no error then create user
+    //if validation passed then create user
     if (result.isEmpty()) {
       try {
         //find a user with the body mail id
@@ -53,6 +55,7 @@ router.post(
               id: User.id,
             },
           };
+          //creating auth-token
           const authToken = jwt.sign(data, JWT_SECRET);
           res.json({ data, authToken });
           //res.json(User);
@@ -67,7 +70,7 @@ router.post(
   }
 );
 
-//Route 2: Authenticte a user using: POST "/api/auth/login" , does not require athentication
+//Route 2: Authenticte a user using: POST "/api/auth/login" , require athentication
 router.post(
   "/login",
   //validations
@@ -108,6 +111,7 @@ router.post(
                 id: User.id,
               },
             };
+            //creating auth-token
             const authToken = jwt.sign(payload, JWT_SECRET);
             res.send({ authToken });
           }
@@ -127,7 +131,9 @@ router.post(
 //Route 3: Get Logged in user details using: POST "/api/auth/getuser" , Login Require
 router.post("/getuser", fetchuser, async (req, res) => {
   try {
+    //getting logged in user-id from the middleware
     const userID = req.user.id;
+    //fetching user detaild excluding paassword by using the user-id
     const User = await user.findById(userID).select("-password");
     res.send(User);
   } catch (error) {
