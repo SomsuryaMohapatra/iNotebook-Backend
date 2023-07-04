@@ -1,9 +1,11 @@
 const dbConnection = require("./db");
 const express = require("express");
+const cors = require("cors");
 
 dbConnection();
 
 const app = express();
+app.use(cors());
 const port = 5000;
 
 //to send json content in request body , we have to use express.json()
