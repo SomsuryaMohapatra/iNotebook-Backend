@@ -11,6 +11,9 @@ const router = express.Router();
 
 const JWT_SECRET = "narut$o";
 
+//variable to know failure or success of a api call
+let success=false;
+
 //Route 1: create a user using: POST "/api/auth/createuser" , require athentication
 router.post(
   "/createuser",
@@ -91,18 +94,20 @@ router.post(
         let User = await user.findOne({ email });
         //if user not found , set bad request
         if (!User) {
+          success=false;
           return res
             .status(400)
-            .json({ error: "Please Login with correct credentials" });
+            .json({success, error: "Please Login with correct credentials" });
         }
         //if user found then compare entered pasword with actual password
         else {
           const passwordCompare = await bcrypt.compare(password, User.password);
           //if password does not match then set bad request
           if (!passwordCompare) {
+            success=false;
             return res
               .status(400)
-              .json({ error: "Please Login with correct credentials" });
+              .json({success, error: "Please Login with correct credentials" });
           }
           //if password match then send authToken
           else {
@@ -113,7 +118,8 @@ router.post(
             };
             //creating auth-token
             const authToken = jwt.sign(payload, JWT_SECRET);
-            res.send({ authToken });
+            success=true;
+            res.send({success, authToken });
           }
         }
       } catch (error) {
