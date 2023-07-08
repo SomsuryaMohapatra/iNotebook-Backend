@@ -12,7 +12,7 @@ const router = express.Router();
 const JWT_SECRET = "narut$o";
 
 //variable to know failure or success of a api call
-let success=false;
+let success = false;
 
 //Route 1: create a user using: POST "/api/auth/createuser" , require athentication
 router.post(
@@ -36,9 +36,10 @@ router.post(
         let User = await user.findOne({ email: req.body.email });
         //if user found then display error
         if (User) {
+          success = false;
           return res
             .status(400)
-            .json({ error: "User already exists with this email" });
+            .json({ success, error: "User already exists with this email" });
         }
         //else create the user with hashed password
         else {
@@ -60,7 +61,8 @@ router.post(
           };
           //creating auth-token
           const authToken = jwt.sign(data, JWT_SECRET);
-          res.json({ data, authToken });
+          success = true;
+          res.json({ success, data, authToken });
           //res.json(User);
         }
       } catch (error) {
@@ -94,20 +96,23 @@ router.post(
         let User = await user.findOne({ email });
         //if user not found , set bad request
         if (!User) {
-          success=false;
+          success = false;
           return res
             .status(400)
-            .json({success, error: "Please Login with correct credentials" });
+            .json({ success, error: "Please Login with correct credentials" });
         }
         //if user found then compare entered pasword with actual password
         else {
           const passwordCompare = await bcrypt.compare(password, User.password);
           //if password does not match then set bad request
           if (!passwordCompare) {
-            success=false;
+            success = false;
             return res
               .status(400)
-              .json({success, error: "Please Login with correct credentials" });
+              .json({
+                success,
+                error: "Please Login with correct credentials",
+              });
           }
           //if password match then send authToken
           else {
@@ -118,8 +123,8 @@ router.post(
             };
             //creating auth-token
             const authToken = jwt.sign(payload, JWT_SECRET);
-            success=true;
-            res.send({success, authToken });
+            success = true;
+            res.send({ success, authToken });
           }
         }
       } catch (error) {
@@ -139,7 +144,7 @@ router.post("/getuser", fetchuser, async (req, res) => {
   try {
     //getting logged in user-id from the middleware
     const userID = req.user.id;
-    //fetching user detaild excluding paassword by using the user-id
+    //fetching user detaild excluding password by using the user-id
     const User = await user.findById(userID).select("-password");
     res.send(User);
   } catch (error) {
